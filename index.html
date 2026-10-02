@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ÓRBITA</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23fff'/%3E%3Cellipse cx='16' cy='16' rx='13' ry='5' fill='none' stroke='%23fff' stroke-width='2' transform='rotate(-30 16 16)'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=JetBrains+Mono&display=swap">
+<style>
+:root{--bg:#000;--ink:#f4f4f4;--mut:#8c8c8c;--line:#2a2a2a;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:15px/1.55 'Barlow',system-ui,sans-serif;background:var(--line);color:var(--ink);display:grid;grid-template-columns:270px minmax(300px,1fr) minmax(300px,1.2fr);gap:1px;height:100vh}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+h1{font:600 17px 'Barlow',sans-serif;letter-spacing:.45em;margin:0}
+section{background:var(--bg);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.pad{padding:22px;overflow:auto}
+label{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:18px 0 6px}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:0;padding:10px;background:#000}
+input:hover,select:hover,textarea:hover{border-color:#555}
+button{border:1px solid #555;background:transparent;border-radius:0;padding:9px 16px;cursor:pointer;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+button:hover{border-color:#fff}
+button.p{background:#fff;border-color:#fff;color:#000;font-weight:600}
+button:disabled{opacity:.4;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:1px solid #fff;outline-offset:2px}
+.hint{font-size:13px;color:var(--mut)}
+#log{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+.m{max-width:92%;padding:11px 14px;white-space:pre-wrap;word-break:break-word}
+.m.u{align-self:flex-end;background:#fff;color:#000}
+.m.a{background:#0b0b0b;border:1px solid var(--line)}
+.m small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.m.u small{color:#555}
+.ok{font-weight:600}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px}
+#bar{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);flex-wrap:wrap}
+#bar select{width:auto;flex:1 1 auto}
+#in{flex:1 1 100%;resize:none;height:70px}
+.tabs{display:flex;gap:8px;padding:12px;border-bottom:1px solid var(--line);align-items:center}
+.tabs .sp{flex:1}
+.tabs button.on{background:#fff;color:#000;border-color:#fff}
+#pv{flex:1;border:0;width:100%;background:#fff}
+#code{flex:1;border:0;font:12px/1.6 'JetBrains Mono',monospace;resize:none;display:none}
+.empty{color:var(--mut);margin:auto;text-align:center;max-width:280px;letter-spacing:.04em}
+.meta{display:block;margin-top:8px;font-size:11px;letter-spacing:.1em;color:var(--mut)}
+.urow{display:flex;justify-content:space-between;margin-top:10px}
+.usub{font-size:12px;color:var(--mut)}
+.tot{border-top:1px solid var(--line);padding-top:8px}
+.stack{display:flex;height:4px;background:var(--line);margin-bottom:2px}
+.stack i{display:block;height:100%}
+#home{position:fixed;inset:0;z-index:20;background:#000;transition:opacity .45s}
+#home.off{opacity:0;pointer-events:none}
+#c3{position:absolute;inset:0;width:100%;height:100%;display:block}
+#fb{display:none;position:absolute;top:26%;left:50%;transform:translateX(-50%)}
+#home nav{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:20px 28px;z-index:2}
+#home nav div{display:flex;gap:26px}
+#home a,.lnk a{color:var(--mut);text-decoration:none;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.lnk a{font-size:13px;letter-spacing:.04em;text-transform:none;color:var(--ink);text-decoration:underline}
+#home a:hover{color:#fff}
+.hero{position:absolute;left:0;right:0;bottom:8vh;text-align:center;z-index:2;padding:0 20px}
+.hero h2{font:600 clamp(28px,6vw,60px)/1 'Barlow',sans-serif;letter-spacing:.5em;padding-left:.5em;margin:0 0 14px}
+.hero p{color:var(--mut);margin:0 0 26px;letter-spacing:.05em}
+.hero .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+#modal{display:none;position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.85);align-items:center;justify-content:center;padding:16px}
+.mod{position:relative;background:#000;border:1px solid var(--line);max-width:640px;width:100%;max-height:82vh;overflow:auto;padding:28px}
+.mod #mx{position:absolute;top:14px;right:14px}
+.mod h3{font:600 18px 'Barlow',sans-serif;letter-spacing:.3em;text-transform:uppercase;margin:0 0 6px}
+.mod h4{font:600 12px 'Barlow',sans-serif;letter-spacing:.16em;text-transform:uppercase;margin:22px 0 6px}
+.mod p,.mod li{color:#c9c9c9;margin:0 0 8px}
+.mod ol,.mod ul{padding-left:20px;margin:0}
+.mod a{color:#fff}
+@media(prefers-reduced-motion:reduce){#home{transition:none}}
+@media(max-width:900px){body{grid-template-columns:1fr;height:auto}section{min-height:420px}}
+</style>
+</head>
+<body>
+<div id="home">
+  <canvas id="c3" aria-hidden="true"></canvas>
+  <div id="fb"><svg width="140" height="140" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="4.5" fill="#fff"/><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#fff" stroke-width="2" transform="rotate(-30 16 16)"/></svg></div>
+  <nav>
+    <span style="display:flex;align-items:center;gap:10px;letter-spacing:.4em;font-weight:600"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="4.5" fill="#fff"/><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#fff" stroke-width="2" transform="rotate(-30 16 16)"/></svg>ÓRBITA</span>
+    <div><a href="#" data-m="docs">Documentação</a><a href="#" data-m="terms">Termos</a><a href="#" data-m="priv">Privacidade</a></div>
+  </nav>
+  <div class="hero">
+    <h2>ÓRBITA</h2>
+    <p>Várias IAs. Um só lugar para criar sites e apps.</p>
+    <div class="row"><button class="p" id="enter">Entrar</button><button data-m="docs">Documentação</button></div>
+  </div>
+</div>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mod"><button id="mx" aria-label="Fechar">Fechar</button><h3 id="mt"></h3><div id="mb"></div></div></div>
+
+<section>
+  <div class="pad">
+    <div class="brand" id="brand" role="button" tabindex="0" title="Voltar ao menu" style="cursor:pointer"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="4.5" fill="#fff"/><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#fff" stroke-width="2" transform="rotate(-30 16 16)"/></svg><h1>ÓRBITA</h1></div>
+    <div class="hint">Conecte suas chaves de API e crie sites conversando com a IA que quiser.</div>
+    <label for="prov">IA</label>
+    <select id="prov"></select>
+    <label for="key">Chave de API</label>
+    <input id="key" type="password" autocomplete="off" placeholder="Cole a chave aqui">
+    <label for="msel">Modelo</label>
+    <select id="msel"></select>
+    <input id="model" style="display:none;margin-top:8px" placeholder="Digite o nome do modelo">
+    <button id="fm" style="margin-top:8px;width:100%">Buscar modelos da minha conta</button>
+    <div class="hint" id="fmst"></div>
+    <div id="baseBox" style="display:none">
+      <label for="base">URL base (compatível com OpenAI)</label>
+      <input id="base">
+    </div>
+    <p class="hint">As chaves ficam salvas só neste navegador e são enviadas direto para o provedor escolhido. Nada passa por servidor nosso.</p>
+    <label>Uso acumulado</label><div id="usage"></div>
+    <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button id="clr">Nova conversa</button><button id="ru">Zerar uso</button></div>
+    <div class="hint lnk" style="margin-top:18px"><a href="#" data-m="docs">Documentação</a> · <a href="#" data-m="terms">Termos</a> · <a href="#" data-m="priv">Privacidade</a></div>
+  </div>
+</section>
+
+<section>
+  <div id="log"><div class="empty">Escolha uma IA, cole a chave e descreva o site ou app que você quer. Você pode trocar de IA a cada mensagem.</div></div>
+  <div id="bar">
+    <textarea id="in" placeholder="Ex.: crie uma landing page para uma barbearia, com agenda de horários"></textarea>
+    <select id="who" aria-label="IA desta mensagem"></select>
+    <button class="p" id="go">Gerar</button>
+  </div>
+</section>
+
+<section>
+  <div class="tabs">
+    <button id="t1" class="on">Visualizar</button>
+    <button id="t2">Código</button>
+    <span class="sp"></span>
+    <button id="cp">Copiar</button>
+    <button id="dl">Baixar .html</button>
+  </div>
+  <iframe id="pv" sandbox="allow-scripts allow-forms allow-modals" title="Visualização"></iframe>
+  <textarea id="code" spellcheck="false" aria-label="Código gerado"></textarea>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const P={
+  anthropic:{n:'Claude (Anthropic)',c:'#d9822b',model:'claude-sonnet-5-5'},
+  openai:{n:'OpenAI',c:'#10a37f',base:'https://api.openai.com/v1',model:'gpt-5'},
+  grok:{n:'Grok (xAI)',c:'#ffffff',base:'https://api.x.ai/v1',model:'grok-4'},
+  gemini:{n:'Gemini (Google)',c:'#2b4bff',model:'gemini-2.5-pro'},
+  deepseek:{n:'DeepSeek',c:'#4d6bfe',base:'https://api.deepseek.com/v1',model:'deepseek-chat'},
+  mistral:{n:'Mistral',c:'#ff7000',base:'https://api.mistral.ai/v1',model:'mistral-large-latest'},
+  groq:{n:'Groq',c:'#f55036',base:'https://api.groq.com/openai/v1',model:'llama-3.3-70b-versatile'},
+  openrouter:{n:'OpenRouter',c:'#6467f2',base:'https://openrouter.ai/api/v1',model:'anthropic/claude-sonnet-4.5'},
+  together:{n:'Together AI',c:'#0f6fff',base:'https://api.together.xyz/v1',model:'meta-llama/Llama-3.3-70B-Instruct-Turbo'},
+  ollama:{n:'Ollama (local)',c:'#bbbbbb',base:'http://localhost:11434/v1',model:'llama3.2',nokey:true},
+  custom:{n:'Outro (compatível OpenAI)',c:'#8a4fff',base:'https://openrouter.ai/api/v1',model:'anthropic/claude-sonnet-4.5'}
+};
+const SYS='Você é um desenvolvedor web sênior. Responda em português com uma explicação curta e, sempre que criar ou alterar algo, entregue UM arquivo HTML completo e autocontido (CSS e JS inline, sem dependências externas) dentro de um único bloco ```html. Ao alterar, devolva o arquivo inteiro atualizado.';
+let cfg={},msgs=[],code='';
+try{cfg=JSON.parse(localStorage.getItem('mia')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('mia',JSON.stringify(cfg))}catch(e){}};
+const get=p=>Object.assign({key:'',model:P[p].model,base:P[p].base||''},cfg[p]);
+
+for(const k in P){
+  for(const s of [$('prov'),$('who')]){const o=document.createElement('option');o.value=k;o.textContent=P[k].n;s.appendChild(o)}
+}
+function load(){
+  const p=$('prov').value,c=get(p);
+  $('key').value=c.key;$('model').value=c.model;$('base').value=c.base;
+  $('baseBox').style.display=(p==='custom'||p==='ollama')?'block':'none';fillModels();
+}
+function store(){
+  const p=$('prov').value;
+  cfg[p]=Object.assign({},cfg[p],{key:$('key').value.trim(),model:$('model').value.trim(),base:$('base').value.trim()});save();
+}
+$('prov').onchange=()=>{load();$('who').value=$('prov').value};
+['key','model','base'].forEach(i=>$(i).oninput=store);
+const M={
+  anthropic:['claude-fable-5-1','claude-opus-5-5','claude-sonnet-5-5','claude-sonnet-4-6','claude-haiku-4-5-20251001'],
+  openai:['gpt-5','gpt-5-mini','gpt-5-nano','gpt-4.1','gpt-4.1-mini','gpt-4.1-nano','gpt-4o','gpt-4o-mini','o3','o3-mini','o4-mini'],
+  grok:['grok-4','grok-4-fast','grok-code-fast-1','grok-3','grok-3-mini'],
+  gemini:['gemini-2.5-pro','gemini-2.5-flash','gemini-2.5-flash-lite','gemini-2.0-flash','gemini-2.0-flash-lite'],
+  deepseek:['deepseek-chat','deepseek-reasoner'],
+  mistral:['mistral-large-latest','mistral-medium-latest','mistral-small-latest','codestral-latest','ministral-8b-latest'],
+  groq:['llama-3.3-70b-versatile','llama-3.1-8b-instant','openai/gpt-oss-120b','openai/gpt-oss-20b'],
+  openrouter:['anthropic/claude-sonnet-4.5','openai/gpt-5','google/gemini-2.5-pro','x-ai/grok-4','deepseek/deepseek-chat','meta-llama/llama-3.3-70b-instruct'],
+  together:['meta-llama/Llama-3.3-70B-Instruct-Turbo','deepseek-ai/DeepSeek-V3','Qwen/Qwen2.5-Coder-32B-Instruct'],
+  ollama:['llama3.2','qwen2.5-coder','deepseek-r1','mistral'],
+  custom:['anthropic/claude-sonnet-4.5','openai/gpt-5','google/gemini-2.5-pro','x-ai/grok-4']
+};
+function fillModels(){
+  const p=$('prov').value,c=get(p),L=(c.list&&c.list.length)?c.list.slice():M[p].slice();
+  if(c.model&&!L.includes(c.model))L.unshift(c.model);
+  const s=$('msel');s.innerHTML='';
+  L.concat(['__o']).forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m==='__o'?'Outro (digitar)…':m;s.appendChild(o)});
+  s.value=c.model||L[0];$('model').style.display='none';
+  $('fmst').textContent=(c.list&&c.list.length)?c.list.length+' modelos da sua conta':'';
+}
+$('msel').onchange=()=>{
+  const v=$('msel').value;
+  if(v==='__o'){$('model').style.display='block';$('model').value='';$('model').focus()}
+  else{$('model').style.display='none';$('model').value=v;store()}
+};
+$('fm').onclick=async()=>{
+  const p=$('prov').value,c=get(p),st=$('fmst');
+  if(!c.key&&!P[p].nokey){st.textContent='Cole a chave de API primeiro.';return}
+  st.textContent='Buscando…';
+  try{
+    let r,j,ids;
+    if(p==='anthropic'){
+      r=await fetch('https://api.anthropic.com/v1/models?limit=100',{headers:{'x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}});
+      j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);ids=j.data.map(x=>x.id);
+    }else if(p==='gemini'){
+      r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(c.key));
+      j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);
+      ids=j.models.filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+    }else{
+      r=await fetch((c.base||P[p].base).replace(/\/$/,'')+'/models',{headers:c.key?{authorization:'Bearer '+c.key}:{}});
+      j=await r.json();if(!r.ok)throw new Error(j.error&&(j.error.message||j.error)||r.status);ids=j.data.map(x=>x.id);
+    }
+    cfg[p]=Object.assign({},cfg[p],{list:ids.sort()});save();fillModels();
+  }catch(e){st.textContent='Não foi possível buscar: '+e.message}
+};
+
+let U={};try{U=JSON.parse(localStorage.getItem('miau')||'{}')}catch(e){}
+const fmt=n=>n.toLocaleString('pt-BR');
+function record(p,i,o){
+  const u=U[p]||{i:0,o:0,n:0};u.i+=i;u.o+=o;u.n++;U[p]=u;
+  try{localStorage.setItem('miau',JSON.stringify(U))}catch(e){}
+  renderUsage();
+}
+function renderUsage(){
+  let tot=0;for(const k in U)tot+=U[k].i+U[k].o;
+  if(!tot){$('usage').innerHTML='<div class="hint">Nenhum uso ainda.</div>';return}
+  let bar='',h='';
+  for(const k in U){
+    const u=U[k],t=u.i+u.o;
+    bar+='<i style="width:'+(t/tot*100)+'%;background:'+P[k].c+'"></i>';
+    h+='<div class="urow"><span><span class="dot" style="background:'+P[k].c+'"></span>'+P[k].n.split(' ')[0]+'</span><b>'+fmt(t)+'</b></div><div class="usub">'+u.n+' respostas · entrada '+fmt(u.i)+' · saída '+fmt(u.o)+'</div>';
+  }
+  $('usage').innerHTML='<div class="stack">'+bar+'</div>'+h+'<div class="urow tot"><span>Total</span><b>'+fmt(tot)+' tokens</b></div>';
+}
+$('ru').onclick=()=>{U={};try{localStorage.removeItem('miau')}catch(e){}renderUsage()};
+load();renderUsage();
+
+async function ask(p,history){
+  const c=get(p);
+  if(!c.key&&!P[p].nokey)throw new Error('Cole a chave de API de '+P[p].n+' no painel da esquerda.');
+  let r,j;
+  if(p==='anthropic'){
+    r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:c.model,max_tokens:16000,system:SYS,messages:history})});
+    j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);
+    return {t:j.content.map(x=>x.text||'').join(''),i:(j.usage||{}).input_tokens||0,o:(j.usage||{}).output_tokens||0};
+  }
+  if(p==='gemini'){
+    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(c.model)+':generateContent?key='+encodeURIComponent(c.key),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:history.map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}))})});
+    j=await r.json();if(!r.ok)throw new Error(j.error&&j.error.message||r.status);
+    const um=j.usageMetadata||{};return {t:(j.candidates[0].content.parts||[]).map(x=>x.text||'').join(''),i:um.promptTokenCount||0,o:(um.candidatesTokenCount||0)+(um.thoughtsTokenCount||0)};
+  }
+  r=await fetch((c.base||P[p].base).replace(/\/$/,'')+'/chat/completions',{method:'POST',headers:Object.assign({'content-type':'application/json'},c.key?{authorization:'Bearer '+c.key}:{}),body:JSON.stringify({model:c.model,messages:[{role:'system',content:SYS}].concat(history)})});
+  j=await r.json();if(!r.ok)throw new Error(j.error&&(j.error.message||j.error)||r.status);
+  return {t:j.choices[0].message.content,i:(j.usage||{}).prompt_tokens||0,o:(j.usage||{}).completion_tokens||0};
+}
+
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function bubble(cls,who,html){
+  const l=$('log');const e=l.querySelector('.empty');if(e)e.remove();
+  const d=document.createElement('div');d.className='m '+cls;
+  d.innerHTML='<small>'+who+'</small>'+html;l.appendChild(d);l.scrollTop=l.scrollHeight;return d;
+}
+function setCode(c){code=c;$('code').value=c;$('pv').srcdoc=c}
+function extract(t){
+  const m=t.match(/```html\s*\n([\s\S]*?)(```|$)/i);
+  return m?m[1].trim():null;
+}
+
+async function send(){
+  const text=$('in').value.trim();if(!text)return;
+  const p=$('who').value;$('in').value='';
+  bubble('u','Você',esc(text));
+  msgs.push({role:'user',content:text});
+  $('go').disabled=true;
+  const w=bubble('a','<span class="dot" style="background:'+P[p].c+'"></span>'+P[p].n+' · '+esc(get(p).model),'Pensando… <span class="tm">0,0 s</span>');
+  try{
+    var t0=performance.now(),iv=setInterval(()=>{const e=w.querySelector('.tm');if(e)e.textContent=((performance.now()-t0)/1000).toFixed(1).replace('.',',')+' s'},100);
+    const R=await ask(p,msgs);clearInterval(iv);
+    const dt=(performance.now()-t0)/1000,out=R.t;record(p,R.i,R.o);
+    msgs.push({role:'assistant',content:out});
+    const c=extract(out);
+    if(c)setCode(c);
+    const shown=esc(out.replace(/```html[\s\S]*?(```|$)/i,'\n__OK__\n').trim()).replace('__OK__','<span class="ok">✓ Código atualizado na visualização</span>');
+    w.innerHTML=w.firstChild.outerHTML+shown+'<span class="meta">⏱ '+dt.toFixed(1).replace('.',',')+' s · '+fmt(R.i+R.o)+' tokens (entrada '+fmt(R.i)+' · saída '+fmt(R.o)+')</span>';
+  }catch(e){
+    clearInterval(iv);msgs.pop();
+    w.innerHTML=w.firstChild.outerHTML+'Não foi possível concluir: '+esc(String(e.message))+'. Confira a chave, o nome do modelo e sua conexão.';
+  }
+  $('go').disabled=false;$('log').scrollTop=1e9;
+}
+$('go').onclick=send;
+$('in').onkeydown=e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))send()};
+
+function tab(n){
+  $('pv').style.display=n===1?'block':'none';$('code').style.display=n===2?'block':'none';
+  $('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2);
+}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+$('code').oninput=()=>{code=$('code').value;$('pv').srcdoc=code};
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText(code);$('cp').textContent='Copiado';setTimeout(()=>$('cp').textContent='Copiar',1500)}catch(e){}};
+$('dl').onclick=()=>{if(!code)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([code],{type:'text/html'}));a.download='meu-site.html';a.click()};
+$('clr').onclick=()=>{msgs=[];setCode('');$('log').innerHTML='<div class="empty">Conversa limpa. Descreva o que você quer criar.</div>'};
+
+/* ===== Menu inicial, logo 3D e documentos ===== */
+let homeOn=true,startHome=()=>{};
+(function(){
+  if(!window.THREE){$('fb').style.display='block';return}
+  const cv=$('c3'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  R.setPixelRatio(Math.min(devicePixelRatio,2));
+  const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(40,1,.1,200);
+  S.add(new THREE.AmbientLight(0xffffff,.22));
+  const L=new THREE.DirectionalLight(0xffffff,1.2);L.position.set(4,3,5);S.add(L);
+  const G=new THREE.Group();G.position.y=.7;S.add(G);
+  const core=new THREE.Mesh(new THREE.SphereGeometry(1.15,64,64),new THREE.MeshPhongMaterial({color:0xffffff,shininess:70}));
+  const tilt=new THREE.Group();tilt.rotation.set(1.15,0,-.5);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(3,.03,12,260),new THREE.MeshBasicMaterial({color:0xffffff}));
+  const sat=new THREE.Mesh(new THREE.SphereGeometry(.13,24,24),new THREE.MeshBasicMaterial({color:0xffffff}));
+  tilt.add(ring,sat);G.add(core,tilt);
+  const n=700,pos=new Float32Array(n*3);
+  for(let i=0;i<n;i++){const r=25+Math.random()*60,a=Math.random()*6.283,b=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(b)*Math.cos(a);pos[i*3+1]=r*Math.sin(b)*Math.sin(a);pos[i*3+2]=r*Math.cos(b)}
+  const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0x9a9a9a,size:.12}));S.add(stars);
+  const k=matchMedia('(prefers-reduced-motion:reduce)').matches?0:1;
+  let mx=0,my=0,sx=0,sy=0,raf=0;
+  addEventListener('pointermove',e=>{mx=e.clientX/innerWidth*2-1;my=e.clientY/innerHeight*2-1});
+  function rs(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;R.setSize(w,h,false);C.aspect=w/h;C.position.set(0,0,w/h<1?15:9.5);C.updateProjectionMatrix()}
+  addEventListener('resize',rs);
+  function tick(t){
+    if(!homeOn)return;
+    sx+=(mx-sx)*.05;sy+=(my-sy)*.05;
+    G.rotation.y=t*.00022*k+sx*.6;G.rotation.x=sy*.35;
+    stars.rotation.y=t*.00002*k;
+    const a=t*.001*k;sat.position.set(Math.cos(a)*3,Math.sin(a)*3,0);
+    R.render(S,C);raf=requestAnimationFrame(tick);
+  }
+  startHome=()=>{cancelAnimationFrame(raf);homeOn=true;rs();tick(0)};
+  startHome();
+})();
+
+const DOC={
+docs:['Documentação',`
+<h4>O que é</h4>
+<p>ÓRBITA é um projeto de código aberto, em um único arquivo HTML, para criar sites e apps conversando com várias IAs (Claude, OpenAI, Grok, Gemini, DeepSeek, Mistral, Groq, Ollama e outras) usando as suas próprias chaves de API.</p>
+<h4>Começando</h4>
+<ol>
+<li>Escolha a IA no painel da esquerda e cole a chave de API.</li>
+<li>Escolha o modelo na lista ou use "Buscar modelos da minha conta".</li>
+<li>Descreva o site ou app e clique em Gerar (Ctrl+Enter também envia).</li>
+<li>Veja o resultado em Visualizar, ajuste em Código e baixe o .html.</li>
+</ol>
+<h4>Onde conseguir chaves</h4>
+<ul>
+<li>Claude: <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></li>
+<li>OpenAI: <a href="https://platform.openai.com" target="_blank" rel="noopener">platform.openai.com</a></li>
+<li>Grok: <a href="https://console.x.ai" target="_blank" rel="noopener">console.x.ai</a></li>
+<li>Gemini: <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a></li>
+<li>DeepSeek: <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a></li>
+<li>Mistral: <a href="https://console.mistral.ai" target="_blank" rel="noopener">console.mistral.ai</a></li>
+<li>Groq: <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a></li>
+<li>OpenRouter: <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a></li>
+<li>Together AI: <a href="https://api.together.ai" target="_blank" rel="noopener">api.together.ai</a></li>
+<li>Ollama: roda no seu computador e não precisa de chave.</li>
+<li>Qualquer outra API compatível com OpenAI: use "Outro" e informe a URL base.</li>
+</ul>
+<p>O app guarda as chaves apenas no seu navegador.</p>
+<h4>Trocar de IA no meio</h4>
+<p>A lista ao lado do botão Gerar define qual IA responde cada mensagem. O histórico é compartilhado entre elas.</p>
+<h4>Uso e tempo</h4>
+<p>Cada resposta mostra o tempo gasto e os tokens usados. O painel de uso soma tudo por IA e fica salvo no navegador até você clicar em Zerar uso.</p>
+<h4>Problemas comuns</h4>
+<ul>
+<li>Chave inválida: confira se copiou a chave inteira e se ela é do provedor selecionado.</li>
+<li>Modelo não encontrado: escolha outro na lista ou busque os modelos da sua conta.</li>
+<li>"Failed to fetch": verifique a conexão. Se persistir, o provedor pode bloquear chamadas direto do navegador; use o OpenRouter.</li>
+<li>Ollama: inicie o servidor com a variável <code>OLLAMA_ORIGINS=*</code> para o navegador poder acessá-lo.</li>
+</ul>`],
+terms:['Termos de uso',`
+<p>Ao usar o ÓRBITA, você concorda com estes termos.</p>
+<h4>1. Projeto e licença</h4>
+<p>O ÓRBITA é um projeto de código aberto, distribuído sob a licença indicada no arquivo LICENSE do repositório. Você pode usar, copiar e modificar o código dentro dos limites dessa licença.</p>
+<h4>2. Projeto independente</h4>
+<p>O ÓRBITA não tem vínculo com Anthropic, OpenAI, xAI, Google ou outros provedores. Nomes e marcas citados pertencem aos respectivos donos.</p>
+<h4>3. Suas chaves e custos</h4>
+<p>Você usa as suas próprias chaves de API e é o único responsável por elas e por qualquer custo cobrado pelos provedores. Não compartilhe sua chave nem use o app em computadores que não sejam seus.</p>
+<h4>4. Conteúdo gerado</h4>
+<p>As respostas vêm das IAs e podem conter erros. Revise o código antes de publicar ou usar em produção. Você responde pelo que criar e publicar, inclusive quanto a direitos autorais.</p>
+<h4>5. Regras dos provedores</h4>
+<p>O uso de cada IA segue os termos e políticas do respectivo provedor, que você deve respeitar.</p>
+<h4>6. Uso responsável</h4>
+<p>Não use o ÓRBITA para atividades ilegais, abusivas ou que violem direitos de terceiros.</p>
+<h4>7. Contribuições</h4>
+<p>Contribuições enviadas ao repositório passam a seguir a mesma licença do projeto.</p>
+<h4>8. Sem garantias</h4>
+<p>O software é oferecido "como está", sem garantia de funcionamento, disponibilidade ou adequação a qualquer fim. Os autores não respondem por perdas decorrentes do uso.</p>
+<h4>9. Mudanças</h4>
+<p>Estes termos podem mudar a qualquer momento. A versão vigente é a do repositório.</p>`],
+priv:['Privacidade',`
+<h4>Onde ficam seus dados</h4>
+<p>O ÓRBITA não tem servidor próprio e não coleta dados. Chaves, modelos escolhidos e contadores de uso ficam só no armazenamento local do seu navegador.</p>
+<h4>O que é enviado</h4>
+<p>Suas mensagens e o código do projeto vão direto do seu navegador para a IA que você selecionar, usando a sua chave. O tratamento desses dados segue a política de privacidade de cada provedor.</p>
+<h4>Serviços de terceiros</h4>
+<p>A tela inicial carrega a biblioteca three.js (cdnjs) e as fontes (Google Fonts), que podem registrar o acesso. Se o app estiver hospedado online, o serviço de hospedagem também pode registrar acessos, conforme a política dele.</p>
+<h4>Apagar tudo</h4>
+<p>Use "Zerar uso" para os contadores e limpe os dados do site no navegador para remover as chaves salvas.</p>`]
+};
+function openM(k){$('mt').textContent=DOC[k][0];$('mb').innerHTML=DOC[k][1];$('modal').style.display='flex';$('mx').focus()}
+function closeM(){$('modal').style.display='none'}
+document.addEventListener('click',e=>{const a=e.target.closest('[data-m]');if(a){e.preventDefault();openM(a.dataset.m)}});
+$('mx').onclick=closeM;
+$('modal').onclick=e=>{if(e.target===$('modal'))closeM()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+$('enter').onclick=()=>{$('home').classList.add('off');homeOn=false;setTimeout(()=>{$('home').style.display='none';$('in').focus()},450)};
+function showHome(){$('home').style.display='block';requestAnimationFrame(()=>{$('home').classList.remove('off');startHome();$('enter').focus()})}
+$('brand').onclick=showHome;
+$('brand').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showHome()}};
+$('enter').focus();
+</script>
+</body>
+</html>
