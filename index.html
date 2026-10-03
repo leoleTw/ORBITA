@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ÓRBITA</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23fff'/%3E%3Cellipse cx='16' cy='16' rx='13' ry='5' fill='none' stroke='%23fff' stroke-width='2' transform='rotate(-30 16 16)'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono&display=swap">
+<style>
+:root{--bg:#0a0a0a;--card:#141414;--line:#232323;--ink:#ececec;--mut:#8a8a8a;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.5 'Geist','Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);display:grid;grid-template-columns:248px 1fr}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid #333;background:transparent;border-radius:999px;padding:7px 14px;font-size:13px}
+button:hover{border-color:#666}
+button.p,.pill{background:#fff;color:#000;border:1px solid #fff;font-weight:500}
+.pill.ghost{background:transparent;color:var(--ink);border-color:#333}
+button:disabled{opacity:.4;cursor:wait}
+:focus-visible{outline:1px solid #fff;outline-offset:2px}
+input,select,textarea{width:100%;background:#0e0e0e;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+input:hover,select:hover,textarea:hover{border-color:#444}
+label{display:block;font-size:12px;color:var(--mut);margin:14px 0 6px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;flex:none}
+aside{padding:22px 14px;display:flex;flex-direction:column;gap:24px;height:100vh;position:sticky;top:0}
+.logo{display:flex;align-items:center;gap:10px;padding:0 10px;font-weight:600;letter-spacing:.35em;cursor:pointer}
+#nav{display:flex;flex-direction:column;gap:2px}
+#nav button{display:flex;gap:12px;align-items:center;border:0;padding:9px 10px;border-radius:8px;color:var(--mut);font-size:14px;text-align:left}
+#nav button:hover{color:var(--ink)}#nav button.on{background:#1b1b1b;color:#fff}
+.sbf{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding:0 10px}
+.sbf a{color:var(--mut);text-decoration:none;font-size:13px}.sbf a:hover{color:#fff}
+main{height:100vh;overflow:auto}
+.view{display:none;max-width:1000px;margin:0 auto;padding:56px 48px}
+.view.on{display:block}
+#v-chat.on{display:flex;flex-direction:column;height:100vh;padding-top:32px;padding-bottom:24px}
+h1{font-size:28px;font-weight:500;margin:0 0 24px;line-height:1.2}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.ph h1{margin:0}
+.sub{color:var(--mut);font-size:13px;margin:-14px 0 20px}.ph .sub{margin:0}
+.card{background:var(--card);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.fx{display:flex;align-items:center;gap:14px}
+.ch2{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cm{flex:1}.cm b{display:block;font-weight:500}.cm small,.card>small{color:var(--mut);font-size:12px;display:block}
+.ci{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#222}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.ag{background:#1a1a1a;border-radius:12px;padding:14px;cursor:pointer}.ag:hover{background:#202020}
+.ag b{display:flex;align-items:center;font-weight:500}.ag small{color:var(--mut);display:block;font-size:12px}
+.ag p{margin:8px 0;color:#bbb;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ag.add{border:1px dashed #333;background:none}
+.pb{height:4px;background:#222;border-radius:4px;overflow:hidden;margin:6px 0}.pb i{display:block;height:100%;background:#fff}
+.big{font-size:32px;font-weight:500;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:14px}.stats .card{margin:0}
+.ur{display:flex;justify-content:space-between;margin-top:14px;font-size:13px}.ur small{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px}th{color:var(--mut);font-weight:400;text-align:left}
+th,td{padding:10px 20px;border-bottom:1px solid var(--line)}tr:last-child td{border:0}
+.kr{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:center;margin-bottom:10px}.kr span{display:flex;align-items:center}
+.pgh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.seg{display:flex;gap:4px;background:var(--card);border-radius:999px;padding:3px}
+.seg button,.tabs button{border:0;color:var(--mut)}.seg button.on,.tabs button.on{background:#262626;color:#fff}
+#cw,#rw{flex:1;flex-direction:column;min-height:0}#cw{display:flex}#rw{display:none}
+#chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid #2a2a2a;border-radius:999px}.chip button{border:0;padding:5px 12px;display:flex;align-items:center;font-size:13px}.chip.off{opacity:.45}
+#log{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 2px}
+.m{max-width:92%;padding:12px 14px;border-radius:14px;background:var(--card);word-break:break-word}
+.m.u{align-self:flex-end;background:#262626;white-space:pre-wrap}
+.m small{display:flex;align-items:center;font-size:12px;color:var(--mut);margin-bottom:4px}
+.bd{white-space:pre-wrap}.ok{font-weight:500}.meta{display:block;margin-top:8px;font-size:12px;color:var(--mut)}
+.empty{color:var(--mut);margin:auto;text-align:center;max-width:320px}
+#comp{position:relative;background:var(--card);border-radius:16px;padding:12px;margin-top:12px}
+#in{resize:none;height:64px;background:none;border:0;padding:4px}
+.bar{display:flex;gap:10px;align-items:center;margin-top:6px;font-size:13px;color:var(--mut)}
+.bar label{display:flex;gap:6px;align-items:center;margin:0;font-size:13px}.bar input{width:auto}.bar .sp{flex:1}
+#atts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12px}#atts span{background:#222;border-radius:999px;padding:2px 10px}
+#ac{display:none;position:absolute;bottom:100%;left:12px;background:#181818;border:1px solid #2a2a2a;border-radius:12px;flex-direction:column;z-index:5;overflow:hidden}
+#ac button{border:0;border-radius:0;text-align:left;display:flex;align-items:center;padding:8px 14px;font-size:14px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;align-items:center}.tabs .sp{flex:1}
+#ot{flex:1;margin:0;padding:16px;overflow:auto;white-space:pre-wrap;font:13px/1.6 'Geist Mono','JetBrains Mono',monospace;background:var(--card);border-radius:14px}
+#pv{flex:1;border:0;background:#fff;display:none;border-radius:14px}
+#home{position:fixed;inset:0;z-index:20;background:#000;transition:opacity .45s;overflow:auto}
+#home.off{opacity:0;pointer-events:none}
+#c3{position:fixed;inset:0;width:100%;height:100%}
+#home nav{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:20px 28px;z-index:2}
+#home nav div{display:flex;gap:24px}
+#home nav a{color:var(--mut);text-decoration:none;font-size:13px}#home nav a:hover{color:#fff}
+.hero{position:absolute;left:0;right:0;bottom:9vh;text-align:center;z-index:2;padding:0 20px}
+.hero h2{font-size:clamp(28px,6vw,56px);font-weight:600;line-height:1;letter-spacing:.5em;padding-left:.5em;margin:0 0 10px}
+.hero p{color:var(--mut);margin:0 0 22px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.hero .row2{justify-content:center}
+#modal{display:none;position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:16px}
+.mod{position:relative;background:#111;border:1px solid var(--line);border-radius:16px;max-width:600px;width:100%;max-height:86vh;overflow:auto;padding:26px}
+#mx{position:absolute;top:14px;right:14px}
+.mod h3{font-size:18px;font-weight:500;margin:0 0 4px}
+.mod h4{font-size:13px;font-weight:600;margin:20px 0 6px}
+.mod p,.mod li{color:#c9c9c9;margin:0 0 8px}.mod ul,.mod ol{padding-left:20px;margin:0}.mod a{color:#fff}
+@media(max-width:800px){body{grid-template-columns:1fr}aside{height:auto;position:static;flex-direction:row;flex-wrap:wrap;gap:8px}#nav{flex-direction:row;flex-wrap:wrap}.sbf{display:none}main{height:auto}.view{padding:24px 16px}#v-chat.on{height:92vh}.kr{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="home">
+  <canvas id="c3" aria-hidden="true"></canvas>
+  <nav><span style="letter-spacing:.4em;font-weight:600">ÓRBITA</span><div><a href="#" data-m="docs">Documentação</a><a href="#" data-m="terms">Termos</a><a href="#" data-m="priv">Privacidade</a></div></nav>
+  <div class="hero">
+    <h2>ÓRBITA</h2>
+    <p>Uma equipe de IAs trabalhando para você.</p>
+    <div class="row2"><button class="p" id="enter">Entrar</button></div>
+  </div>
+</div>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mod"><button id="mx" aria-label="Fechar">Fechar</button><h3 id="mt"></h3><div id="mb"></div></div></div>
+
+<aside>
+  <div class="logo" id="brand" title="Voltar à tela inicial"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="4.5" fill="#fff"/><ellipse cx="16" cy="16" rx="13" ry="5" fill="none" stroke="#fff" stroke-width="2" transform="rotate(-30 16 16)"/></svg>ÓRBITA</div>
+  <nav id="nav"></nav>
+  <div class="sbf"><a href="#" data-m="docs">Documentação</a><a href="#" data-m="terms">Termos</a><a href="#" data-m="priv">Privacidade</a></div>
+</aside>
+<main id="main">
+  <section id="v-home" class="view"></section>
+  <section id="v-chat" class="view">
+    <div class="pgh"><h1 style="margin:0">Chat</h1><div class="seg"><button id="ct1" class="on">Conversa</button><button id="ct2">Resultado</button></div></div>
+    <div id="cw">
+      <div id="chips"></div>
+      <div id="log"><div class="empty">Digite @ e o nome de um agente para escolher quem faz cada parte. Sem menção, o primeiro agente disponível responde.</div></div>
+      <div id="comp">
+        <div id="ac"></div>
+        <textarea id="in" aria-label="Mensagem" placeholder="Ex.: @Redator escreva um texto sobre café @Revisor revise o texto"></textarea>
+        <div id="atts"></div>
+        <div class="bar"><button id="at">Anexar</button><input type="file" id="fi" multiple hidden><label><input type="checkbox" id="par"> Paralelo</label><span class="sp"></span><button class="p" id="go">Enviar</button></div>
+      </div>
+    </div>
+    <div id="rw">
+      <div class="tabs"><button id="t1" class="on">Texto</button><button id="t2">Página</button><span class="sp"></span><button id="cp">Copiar</button><button id="dl">Baixar</button></div>
+      <pre id="ot">O resultado final aparece aqui.</pre>
+      <iframe id="pv" sandbox="allow-scripts allow-forms allow-modals" title="Página gerada"></iframe>
+    </div>
+  </section>
+  <section id="v-agents" class="view"></section>
+  <section id="v-keys" class="view"></section>
+  <section id="v-usage" class="view"></section>
+  <section id="v-logs" class="view"></section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const fk=n=>n>=1000?(n/1000).toFixed(1).replace('.',',')+'k':String(n);
+const fmt=n=>n.toLocaleString('pt-BR');
+const P={
+ anthropic:{n:'Claude (Anthropic)',m:['claude-sonnet-5-5','claude-opus-5-5','claude-fable-5-1','claude-haiku-4-5-20251001']},
+ openai:{n:'OpenAI',b:'https://api.openai.com/v1',m:['gpt-5','gpt-5-mini','gpt-5-nano','gpt-4.1','gpt-4o']},
+ grok:{n:'Grok (xAI)',b:'https://api.x.ai/v1',m:['grok-4','grok-4-fast','grok-3-mini']},
+ gemini:{n:'Gemini (Google)',m:['gemini-2.5-pro','gemini-2.5-flash','gemini-2.5-flash-lite']},
+ deepseek:{n:'DeepSeek',b:'https://api.deepseek.com/v1',m:['deepseek-chat','deepseek-reasoner']},
+ mistral:{n:'Mistral',b:'https://api.mistral.ai/v1',m:['mistral-large-latest','mistral-small-latest']},
+ groq:{n:'Groq',b:'https://api.groq.com/openai/v1',m:['llama-3.3-70b-versatile','openai/gpt-oss-120b']},
+ openrouter:{n:'OpenRouter',b:'https://openrouter.ai/api/v1',m:['openai/gpt-5','anthropic/claude-sonnet-4.5','google/gemini-2.5-pro']},
+ together:{n:'Together AI',b:'https://api.together.xyz/v1',m:['meta-llama/Llama-3.3-70B-Instruct-Turbo']},
+ ollama:{n:'Ollama (local)',b:'http://localhost:11434/v1',m:['llama3.2','qwen2.5-coder'],o:1},
+ custom:{n:'Outro (compatível OpenAI)',b:'',m:['modelo']}
+};
+const DEF=[
+ {id:'a1',name:'Redator',color:'#ff5c5c',p:'anthropic',model:'claude-sonnet-5-5',role:'Você escreve textos claros, bem estruturados e com bom estilo.',lim:0},
+ {id:'a2',name:'Revisor',color:'#4da3ff',p:'gemini',model:'gemini-2.5-flash',role:'Você revisa e melhora textos: corrige erros, enxuga e mantém o sentido.',lim:0},
+ {id:'a3',name:'Pesquisador',color:'#7dffb0',p:'deepseek',model:'deepseek-chat',role:'Você levanta ideias, fatos e estrutura de conteúdo, de forma objetiva.',lim:0}
+];
+let cfg=Object.assign({k:{},b:{},l:{}},ld('oc',{})),A=ld('oa',DEF),U=ld('ou',{}),att=[],last='',outTxt='',cur='home',LG=ld('ol',[]);
+const hd=a=>a.name.trim().replace(/\s+/g,'_');
+const used=a=>(U[a.id]||{}).t||0;
+const hasKey=a=>cfg.k[a.p]||P[a.p].o;
+const ok=a=>hasKey(a)&&!(U[a.id]||{}).b&&(!a.lim||used(a)<a.lim);
+const why=a=>!hasKey(a)?'sem chave':(U[a.id]||{}).b?'sem saldo':(a.lim&&used(a)>=a.lim)?'limite atingido':'';
+function pick(pref,ex){return pref&&ok(pref)&&!ex.includes(pref)?pref:A.find(x=>ok(x)&&!ex.includes(x))}
+
+/* ---------- interface ---------- */
+const IC={home:'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',chat:'M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.9A8 8 0 1 1 21 12z',agents:'M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',keys:'M15 5a4 4 0 1 1-2.8 6.8L4 20v-3l2-1v-2l2-1 1.5-1.5A4 4 0 0 1 15 5z',usage:'M3 3v18h18M7 15l4-5 3 3 5-7',logs:'M8 8l-5 4 5 4M16 8l5 4-5 4'};
+const ico=k=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[k]}"/></svg>`;
+const NAV=[['home','Início'],['chat','Chat'],['agents','Agentes'],['keys','Chaves'],['usage','Uso'],['logs','Logs']];
+const tot=()=>Object.values(U).reduce((s,u)=>s+(u.t||0),0);
+const VW={home:()=>rHome(),agents:()=>rAgents(),keys:()=>rKeys(),usage:()=>rUsage(),logs:()=>rLogs()};
+function nav(){$('nav').innerHTML=NAV.map(([k,t])=>`<button data-go="${k}" class="${k===cur?'on':''}">${ico(k)}${t}</button>`).join('')}
+function route(v){cur=v;document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));nav();if(VW[v])VW[v]();if(v==='chat')$('in').focus();$('main').scrollTop=0}
+function cv(n){$('cw').style.display=n===1?'flex':'none';$('rw').style.display=n===2?'flex':'none';$('ct1').classList.toggle('on',n===1);$('ct2').classList.toggle('on',n===2)}
+function chips(){$('chips').innerHTML=A.map(a=>{const w=why(a);return `<span class="chip${w?' off':''}" title="${esc(a.model)}${w?' · '+w:''}"><button data-h="${esc(hd(a))}"><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</button></span>`}).join('')}
+function render(){chips();if(VW[cur]&&cur!=='keys')VW[cur]()}
+const agCards=full=>A.map(a=>{const w=why(a),t=used(a);return `<div class="ag" data-e="${a.id}"><b><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</b><small>${esc(a.model)}</small><p>${esc(a.role||'Sem função definida')}</p>${full?`<div class="pb"><i style="width:${a.lim?Math.min(100,t/a.lim*100):0}%"></i></div><small>${fk(t)}${a.lim?' / '+fk(a.lim):''} tokens${w?' · '+w:''}</small>`:''}</div>`}).join('')+'<div class="ag add" data-e="new"><b>+ Novo agente</b><small>Nome, cor e função</small></div>';
+function rHome(){
+  const n=Object.keys(P).filter(p=>cfg.k[p]).length;
+  $('v-home').innerHTML=`<h1>Bem-vindo</h1>
+  <div class="card fx"><div class="ci">${ico('keys')}</div><div class="cm"><b>${n?n+(n>1?' provedores conectados':' provedor conectado'):'Adicione suas chaves para começar'}</b><small>${n?'Suas chaves ficam só neste navegador.':'Cole a chave de API de cada IA que quiser usar.'}</small></div><button class="pill" data-go="keys">${n?'Gerenciar':'Adicionar chaves'}</button></div>
+  <div class="card"><div class="ch2"><div class="cm"><b>Agentes</b><small>Digite @ no chat para chamar cada um.</small></div><button class="pill" data-go="chat">Abrir chat</button></div><div class="grid">${agCards(false)}</div></div>
+  <div class="card"><div class="ch2"><div class="cm"><b>Uso</b><small>Tokens gastos até agora</small></div><button class="pill ghost" data-go="usage">Ver uso</button></div><div class="big">${fmt(tot())}</div></div>`;
+}
+function rAgents(){$('v-agents').innerHTML=`<div class="ph"><h1>Agentes</h1><button class="pill" data-e="new">Novo agente</button></div><div class="grid">${agCards(true)}</div>`}
+function rKeys(st){
+  $('v-keys').innerHTML=`<h1>Chaves</h1><p class="sub">As chaves ficam só neste navegador. Ao salvar, o app busca os modelos de cada conta.</p><div class="card">`+Object.keys(P).map(p=>`<div class="kr"><span><span class="dot" style="background:${cfg.k[p]||P[p].o?'#4ade80':'#444'}"></span>${P[p].n}</span><input id="k_${p}" type="password" autocomplete="off" aria-label="Chave ${esc(P[p].n)}" placeholder="${P[p].o?'sem chave':'chave de API'}" value="${esc(cfg.k[p]||'')}"></div>`+(p==='ollama'||p==='custom'?`<div class="kr"><span></span><input id="b_${p}" aria-label="URL base" placeholder="URL base" value="${esc(cfg.b[p]||P[p].b||'')}"></div>`:'')).join('')+`</div><div class="ph" style="justify-content:flex-start;gap:14px"><button class="pill" id="ks">Salvar e buscar modelos</button><span class="sub" id="kst">${st||''}</span></div>`;
+  $('ks').onclick=async()=>{
+    $('ks').disabled=true;$('kst').textContent='Buscando modelos…';
+    for(const p in P){cfg.k[p]=$('k_'+p).value.trim();if($('b_'+p))cfg.b[p]=$('b_'+p).value.trim()}
+    const ps=Object.keys(P).filter(p=>cfg.k[p]||(P[p].o&&cfg.b[p]&&cfg.b[p]!==P[p].b));
+    const rs=await Promise.allSettled(ps.map(fl));
+    sv('oc',cfg);chips();
+    rKeys(rs.filter(x=>x.status==='fulfilled').length+' de '+ps.length+' provedores com modelos carregados.');
+  };
+}
+function chart(){
+  const D=[...Array(7)].map((_,i)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-6+i);return d}),
+  S=D.map(d=>{const t=+d,m={};LG.forEach(x=>{if(x.ts>=t&&x.ts<t+864e5){const e=m[x.id]||(m[x.id]={c:x.c,v:0});e.v+=x.i+x.o}});return m}),
+  T=S.map(m=>Object.values(m).reduce((s,e)=>s+e.v,0)),mx=Math.max(1,...T);let g='';
+  D.forEach((d,i)=>{let y=170;const x=24+i*88;
+    Object.values(S[i]).forEach(e=>{const h=e.v/mx*140;y-=h;g+=`<rect x="${x}" y="${y}" width="48" height="${h}" fill="${e.c}" rx="3"/>`});
+    g+=`<text x="${x+24}" y="${y-6}" text-anchor="middle" fill="#8a8a8a" font-size="11">${T[i]?fk(T[i]):''}</text><text x="${x+24}" y="190" text-anchor="middle" fill="#8a8a8a" font-size="11">${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}</text>`});
+  return `<svg viewBox="0 0 660 200" width="100%" role="img" aria-label="Tokens por dia, últimos 7 dias" style="margin-top:12px"><line x1="12" y1="170" x2="648" y2="170" stroke="#262626"/>${g}</svg>`;
+}
+function rUsage(){
+  const n=LG.length,ms=n?LG.reduce((s,x)=>s+x.ms,0)/n/1000:0,T=tot();
+  $('v-usage').innerHTML=`<div class="ph"><h1>Uso</h1><button class="pill ghost" id="uz">Zerar uso</button></div>
+  <div class="stats"><div class="card"><small>Tokens totais</small><div class="big">${fmt(T)}</div></div><div class="card"><small>Requisições</small><div class="big">${fmt(n)}</div></div><div class="card"><small>Tempo médio</small><div class="big">${ms.toFixed(1).replace('.',',')} s</div></div></div>
+  <div class="card"><b style="font-weight:500">Tokens por dia</b><small>Últimos 7 dias, por agente</small>${chart()}</div>
+  <div class="card"><b style="font-weight:500">Por agente</b>`+A.map(a=>{const t=used(a),r=LG.filter(x=>x.id===a.id).length;return `<div class="ur"><span><span class="dot" style="background:${a.color}"></span>${esc(a.name)} <small>${esc(a.model)}</small></span><span>${fmt(t)} tokens · ${r} req${a.lim?' · limite '+fk(a.lim):''}</span></div><div class="pb"><i style="width:${a.lim?Math.min(100,t/a.lim*100):(T?t/T*100:0)}%;background:${a.color}"></i></div>`}).join('')+`</div>`;
+  $('uz').onclick=()=>{U={};LG=[];sv('ou',U);sv('ol',LG);render()};
+}
+function rLogs(){
+  $('v-logs').innerHTML='<h1>Logs</h1><div class="card" style="padding:8px 0;overflow:auto">'+(LG.length?'<table><tr><th>Hora</th><th>Agente</th><th>Modelo</th><th>Tokens</th><th>Tempo</th></tr>'+LG.slice(0,100).map(x=>`<tr><td>${new Date(x.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})}</td><td><span class="dot" style="background:${x.c}"></span>${esc(x.n)}</td><td>${esc(x.m)}</td><td>${fmt(x.i+x.o)}</td><td>${(x.ms/1000).toFixed(1).replace('.',',')} s</td></tr>`).join('')+'</table>':'<p class="sub" style="margin:0;padding:16px 20px">Nenhuma requisição ainda.</p>')+'</div>';
+}
+function bub(cls,head,html){
+  const l=$('log'),e=l.querySelector('.empty');if(e)e.remove();
+  const d=document.createElement('div');d.className='m '+cls;
+  d.innerHTML=(head?'<small>'+head+'</small>':'')+html;l.appendChild(d);l.scrollTop=l.scrollHeight;return d;
+}
+const head=a=>'<span class="dot" style="background:'+a.color+'"></span>'+esc(a.name)+' · '+esc(a.model);
+const getHtml=t=>{const m=t.match(/```html\s*\n([\s\S]*?)(```|$)/i);return m?m[1].trim():''};
+const shown=t=>esc(t.replace(/```html[\s\S]*?(```|$)/i,'\n§\n').trim()).replace('§','<span class="ok">✓ Página gerada (aba Página)</span>');
+function tab(n){$('ot').style.display=n===1?'block':'none';$('pv').style.display=n===2?'block':'none';$('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2)}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+function showOut(t){outTxt=t;$('ot').textContent=t;const h=getHtml(t);$('pv').srcdoc=h;tab(h?2:1)}
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText(getHtml(outTxt)||outTxt)}catch(e){}};
+$('dl').onclick=()=>{if(!outTxt)return;const h=getHtml(outTxt),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h||outTxt],{type:h?'text/html':'text/plain'}));a.download=h?'pagina.html':'resultado.txt';a.click()};
+
+/* ---------- modal ---------- */
+function openM(t,h,fn){$('mt').textContent=t;$('mb').innerHTML=h;$('modal').style.display='flex';if(fn)fn();$('mx').focus()}
+function closeM(){$('modal').style.display='none'}
+$('mx').onclick=closeM;$('modal').onclick=e=>{if(e.target===$('modal'))closeM()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+
+function edit(id){
+  const a=id==='new'?{id:'a'+Date.now(),name:'',color:'#ffffff',p:'anthropic',model:'',role:'',lim:0}:Object.assign({},A.find(x=>x.id===id));
+  openM(id==='new'?'Novo agente':'Editar agente',`
+  <label for="an">Nome</label><input id="an" value="${esc(a.name)}">
+  <label for="ac2">Cor da bolinha</label><input id="ac2" type="color" value="${a.color}" style="height:40px;padding:2px">
+  <label for="ap">Provedor</label><select id="ap">${Object.keys(P).map(k=>`<option value="${k}"${k===a.p?' selected':''}>${P[k].n}</option>`).join('')}</select>
+  <label for="am">Modelo</label><select id="am"></select>
+  <input id="ax" placeholder="ou digite o nome de outro modelo" style="margin-top:8px">
+  <label for="ar">Função</label><textarea id="ar" rows="3" placeholder="O que este agente faz?">${esc(a.role)}</textarea>
+  <label for="al">Limite de tokens (0 = sem limite)</label><input id="al" type="number" min="0" value="${a.lim}">
+  <div class="row2" style="justify-content:flex-start"><button class="p" id="as">Salvar</button>${id==='new'?'':'<button id="ad">Apagar</button>'}</div>`,()=>{
+    const fill=()=>{const p=$('ap').value,L=(cfg.l[p]&&cfg.l[p].length?cfg.l[p]:P[p].m).slice();if(a.model&&a.p===p&&!L.includes(a.model))L.unshift(a.model);$('am').innerHTML=L.map(m=>`<option${m===a.model?' selected':''}>${esc(m)}</option>`).join('')};
+    fill();$('ap').onchange=()=>{a.p=$('ap').value;a.model='';fill()};
+    $('as').onclick=()=>{
+      const name=$('an').value.trim();if(!name){$('an').focus();return}
+      if(A.some(x=>x.id!==a.id&&norm(hd(x))===norm(name.replace(/\s+/g,'_')))){alert('Já existe um agente com esse nome.');return}
+      Object.assign(a,{name,color:$('ac2').value,p:$('ap').value,model:$('ax').value.trim()||$('am').value,role:$('ar').value.trim(),lim:Math.max(0,+$('al').value||0)});
+      const i=A.findIndex(x=>x.id===a.id);if(i<0)A.push(a);else A[i]=a;
+      sv('oa',A);render();closeM();
+    };
+    if($('ad'))$('ad').onclick=()=>{if(confirm('Apagar este agente?')){A=A.filter(x=>x.id!==a.id);sv('oa',A);render();closeM()}};
+  });
+}
+async function fl(p){
+  const k=cfg.k[p]||'',base=(cfg.b[p]||P[p].b||'').replace(/\/$/,'');let r,j,ids;
+  if(p==='anthropic'){r=await fetch('https://api.anthropic.com/v1/models?limit=100',{headers:{'x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}});j=await r.json();ids=(j.data||[]).map(x=>x.id)}
+  else if(p==='gemini'){r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(k));j=await r.json();ids=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''))}
+  else{r=await fetch(base+'/models',{headers:k?{authorization:'Bearer '+k}:{}});j=await r.json();ids=(j.data||[]).map(x=>x.id)}
+  if(!r.ok||!ids.length)throw new Error('falhou');
+  cfg.l[p]=ids.sort();
+}
+
+/* ---------- menções e anexos ---------- */
+function ins(h){const t=$('in'),pos=t.selectionStart??t.value.length,b=t.value.slice(0,pos),r=t.value.slice(pos),m=b.match(/@[^\s@]*$/);t.value=(m?b.slice(0,m.index):b+(b&&!/\s$/.test(b)?' ':''))+'@'+h+' '+r;t.focus();$('ac').style.display='none'}
+$('in').oninput=()=>{
+  const t=$('in'),m=t.value.slice(0,t.selectionStart).match(/@([^\s@]*)$/),ac=$('ac');
+  if(!m){ac.style.display='none';return}
+  const L=A.filter(a=>norm(hd(a)).startsWith(norm(m[1])));
+  ac.innerHTML=L.map(a=>`<button data-h="${esc(hd(a))}"><span class="dot" style="background:${a.color}"></span>${esc(hd(a))}</button>`).join('');ac.style.display=L.length?'flex':'none';
+};
+document.addEventListener('click',e=>{
+  const h=e.target.closest('[data-h]');if(h)ins(h.dataset.h);
+  const x=e.target.closest('[data-e]');if(x)edit(x.dataset.e);
+  const m=e.target.closest('[data-m]');if(m){e.preventDefault();doc(m.dataset.m)}
+  const g=e.target.closest('[data-go]');if(g){if(g.dataset.go==='res'){route('chat');cv(2)}else route(g.dataset.go)}
+});
+function ratt(){$('atts').innerHTML=att.map((f,i)=>`<span>${esc(f.name)} <a href="#" data-r="${i}" style="color:#fff" aria-label="Remover">×</a></span>`).join('')}
+$('atts').onclick=e=>{const r=e.target.closest('[data-r]');if(r){e.preventDefault();att.splice(+r.dataset.r,1);ratt()}};
+$('at').onclick=()=>$('fi').click();
+$('fi').onchange=async e=>{
+  for(const f of e.target.files){
+    if(f.type.startsWith('image/')){const d=await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});att.push({name:f.name,img:1,mt:f.type,d:d.split(',')[1]})}
+    else if(/^text\/|json|xml|javascript|svg/.test(f.type)||/\.(jsx?|tsx?|html?|css|md|csv|py|txt|json)$/i.test(f.name))att.push({name:f.name,x:await f.text()});
+    else bub('a','Sistema','Formato ainda não suportado: '+esc(f.name)+'. Use imagens ou arquivos de texto e código.');
+  }
+  e.target.value='';ratt();
+};
+
+/* ---------- chamadas às IAs ---------- */
+const bad=(r,j)=>{let m=j&&j.error;m=m&&(m.message||m);return Object.assign(new Error(String(m||r.status)),{st:r.status})};
+async function ask(a,sys,txt,files){
+  const k=cfg.k[a.p]||'',pv=P[a.p],base=(cfg.b[a.p]||pv.b||'').replace(/\/$/,''),im=files.filter(f=>f.img);
+  if(!k&&!pv.o)throw Object.assign(new Error('falta a chave de '+pv.n),{st:401});
+  let r,j;
+  if(a.p==='anthropic'){
+    r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:a.model,max_tokens:8000,system:sys,messages:[{role:'user',content:im.map(f=>({type:'image',source:{type:'base64',media_type:f.mt,data:f.d}})).concat([{type:'text',text:txt}])}]})});
+    j=await r.json();if(!r.ok)throw bad(r,j);
+    return {t:j.content.map(x=>x.text||'').join(''),i:(j.usage||{}).input_tokens||0,o:(j.usage||{}).output_tokens||0};
+  }
+  if(a.p==='gemini'){
+    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(a.model)+':generateContent?key='+encodeURIComponent(k),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:txt}].concat(im.map(f=>({inlineData:{mimeType:f.mt,data:f.d}})))}]})});
+    j=await r.json();if(!r.ok)throw bad(r,j);
+    const u=j.usageMetadata||{};
+    return {t:((j.candidates||[{content:{parts:[]}}])[0].content.parts||[]).map(x=>x.text||'').join(''),i:u.promptTokenCount||0,o:(u.candidatesTokenCount||0)+(u.thoughtsTokenCount||0)};
+  }
+  const c=im.length?[{type:'text',text:txt}].concat(im.map(f=>({type:'image_url',image_url:{url:'data:'+f.mt+';base64,'+f.d}}))):txt;
+  r=await fetch(base+'/chat/completions',{method:'POST',headers:Object.assign({'content-type':'application/json'},k?{authorization:'Bearer '+k}:{}),body:JSON.stringify({model:a.model,messages:[{role:'system',content:sys},{role:'user',content:c}]})});
+  j=await r.json();if(!r.ok)throw bad(r,j);
+  return {t:j.choices[0].message.content||'',i:(j.usage||{}).prompt_tokens||0,o:(j.usage||{}).completion_tokens||0};
+}
+const quota=e=>e.st===402||e.st===429||/quota|credit|balance|billing|insufficient/i.test(e.message);
+const sys=a=>(a.role||'Você é um assistente versátil.')+' Você é "'+a.name+'", agente de uma equipe. Responda em português, direto e sem enrolação, entregando apenas a sua parte. Se criar uma página web, entregue um único arquivo HTML autocontido em um bloco ```html.';
+function build(tk,prior,full,n,files){
+  let p='';
+  if(last)p+='Resultado anterior (para editar):\n'+last.slice(0,4000)+'\n\n';
+  if(n>1)p+='Pedido completo: '+full+'\n\n';
+  if(prior.length)p+='Trabalho dos colegas até agora:\n'+prior.map(x=>'['+x.n+']\n'+x.t.slice(0,6000)).join('\n\n')+'\n\n';
+  p+=(n>1?'Sua parte: ':'')+tk.t;
+  files.filter(f=>!f.img).forEach(f=>{p+='\n\nArquivo '+f.name+':\n'+f.x.slice(0,12000)});
+  return p;
+}
+function plan(text){
+  const re=/@([^\s@.,;:!?]+)/g,hits=[];let m;
+  while((m=re.exec(text))){const a=A.find(x=>norm(hd(x))===norm(m[1]));if(a)hits.push({a,s:m.index,e:m.index+m[0].length})}
+  if(!hits.length)return [{a:null,t:text}];
+  const pre=text.slice(0,hits[0].s).trim();
+  return hits.map((h,i)=>({a:h.a,t:text.slice(h.e,i+1<hits.length?hits[i+1].s:undefined).trim()||pre||text}));
+}
+function rec(a,i,o,ms){const u=U[a.id]||{t:0};u.t=(u.t||0)+i+o;U[a.id]=u;LG.unshift({ts:Date.now(),id:a.id,n:a.name,c:a.color,m:a.model,i,o,ms:ms||0});LG=LG.slice(0,1000);sv('ou',U);sv('ol',LG);render()}
+async function exec(tk,prior,full,n,files){
+  let a=pick(tk.a,[]);const tried=[];
+  if(!a){bub('a','Sistema','Nenhum agente disponível. Confira Chaves e os limites de tokens.');return null}
+  const w=bub('a','','');
+  for(;;){
+    const t0=performance.now();
+    w.innerHTML='<small>'+head(a)+'</small><div class="bd">Trabalhando… <span class="tm">0,0 s</span></div>';
+    const iv=setInterval(()=>{const e=w.querySelector('.tm');if(e)e.textContent=((performance.now()-t0)/1000).toFixed(1).replace('.',',')+' s'},100);
+    try{
+      const R=await ask(a,sys(a),build(tk,prior,full,n,files),files);
+      clearInterval(iv);rec(a,R.i,R.o,performance.now()-t0);
+      w.innerHTML='<small>'+head(a)+'</small><div class="bd">'+shown(R.t)+'</div><span class="meta">⏱ '+((performance.now()-t0)/1000).toFixed(1).replace('.',',')+' s · '+fmt(R.i+R.o)+' tokens (entrada '+fmt(R.i)+' · saída '+fmt(R.o)+')'+(tk.a&&tk.a!==a?' · substituiu '+esc(tk.a.name):'')+'</span>';
+      $('log').scrollTop=1e9;return {n:a.name,t:R.t};
+    }catch(e){
+      clearInterval(iv);
+      if(quota(e)){U[a.id]=Object.assign(U[a.id]||{t:0},{b:1});sv('ou',U);render();tried.push(a);const b=pick(null,tried);if(b){a=b;continue}}
+      w.innerHTML='<small>'+head(a)+'</small><div class="bd">Erro: '+esc(e.message)+'. Confira a chave, o modelo e a conexão.</div>';return null;
+    }
+  }
+}
+async function go(){
+  const text=$('in').value.trim();if(!text)return;
+  const files=att.slice();att=[];ratt();$('in').value='';$('ac').style.display='none';
+  bub('u','',esc(text)+(files.length?'\n📎 '+files.map(f=>esc(f.name)).join(', '):''));
+  $('go').disabled=true;
+  const tasks=plan(text),pr=[];let fin='';
+  if($('par').checked&&tasks.length>1){
+    (await Promise.all(tasks.map(t=>exec(t,[],text,tasks.length,files)))).forEach(x=>x&&pr.push(x));
+    fin=pr.map(x=>'## '+x.n+'\n'+x.t).join('\n\n');
+  }else{
+    for(const t of tasks){const x=await exec(t,pr,text,tasks.length,files);if(x)pr.push(x)}
+    fin=pr.length?pr[pr.length-1].t:'';
+  }
+  if(fin){last=fin;showOut(fin);bub('a','','<button class="pill" data-go="res">Abrir resultado</button>')}
+  $('go').disabled=false;
+}
+$('go').onclick=go;
+$('in').onkeydown=e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))go()};
+$('ct1').onclick=()=>cv(1);$('ct2').onclick=()=>cv(2);
+
+/* ---------- documentos ---------- */
+const DOC={
+docs:['Documentação',`
+<h4>Agentes</h4><p>Cada agente é um modelo de IA com nome, cor e função. Crie, edite e apague na tela inicial ou na barra do app.</p>
+<h4>Chaves e modelos</h4><p>Em Chaves, cole a chave de cada provedor. O app busca os modelos da sua conta e eles aparecem ao editar um agente.</p>
+<h4>Menções</h4><p>Digite @ e o nome do agente. Exemplo: "@Redator escreva um texto sobre café @Revisor revise o texto". Cada agente recebe só a sua parte. Sem menção, o primeiro agente disponível responde.</p>
+<h4>Economia de tokens</h4><p>Defina um limite de tokens por agente. Quando o limite acaba, ou o provedor avisa que o saldo ou a cota acabou, o agente é pulado e outro assume. No modo sequencial cada agente aproveita o trabalho do anterior sem repetir; o modo Paralelo é mais rápido. Os provedores não informam o saldo da conta ao navegador, por isso o limite é definido por você.</p>
+<h4>Anexos</h4><p>Imagens (precisam de um modelo com visão) e arquivos de texto ou código: HTML, JSX, CSS, JSON, MD, CSV e outros.</p>
+<h4>Resultado</h4><p>O painel da direita mostra o resultado final. Se for uma página HTML, ela aparece na aba Página. Dá para copiar e baixar.</p>
+<h4>Problemas comuns</h4><ul><li>Chave inválida: confira se é do provedor do agente.</li><li>Modelo não encontrado: escolha outro na lista do agente.</li><li>"Failed to fetch": verifique a conexão, ou use o OpenRouter se o provedor bloquear o navegador.</li><li>Ollama: inicie o servidor com <code>OLLAMA_ORIGINS=*</code>.</li></ul>`],
+terms:['Termos de uso',`
+<p>Ao usar o ÓRBITA, você concorda com estes termos.</p>
+<h4>1. Projeto e licença</h4><p>Código aberto, distribuído sob a licença indicada no arquivo LICENSE do repositório.</p>
+<h4>2. Projeto independente</h4><p>Sem vínculo com Anthropic, OpenAI, xAI, Google ou outros provedores. Nomes e marcas pertencem aos respectivos donos.</p>
+<h4>3. Chaves e custos</h4><p>Você usa as suas próprias chaves e é responsável por elas e por qualquer custo cobrado pelos provedores. Os limites de tokens do app são uma ajuda, não uma garantia de gasto máximo.</p>
+<h4>4. Conteúdo gerado</h4><p>As respostas vêm das IAs e podem conter erros. Revise antes de usar ou publicar. Você responde pelo que criar e publicar.</p>
+<h4>5. Regras dos provedores e uso responsável</h4><p>Siga os termos de cada provedor e não use o app para fins ilegais ou abusivos.</p>
+<h4>6. Sem garantias</h4><p>Oferecido "como está", sem garantia de funcionamento. Os autores não respondem por perdas decorrentes do uso.</p>`],
+priv:['Privacidade',`
+<h4>Onde ficam seus dados</h4><p>Sem servidor próprio e sem coleta. Chaves, agentes e contadores de uso ficam só no armazenamento local do seu navegador.</p>
+<h4>O que é enviado</h4><p>Suas mensagens e anexos vão direto do navegador para os provedores dos agentes que você usar, com as suas chaves. O tratamento segue a política de cada provedor.</p>
+<h4>Serviços de terceiros</h4><p>A tela inicial carrega three.js (cdnjs) e fontes (Google Fonts), que podem registrar o acesso. Se o app estiver hospedado online, o serviço de hospedagem também pode registrar acessos.</p>
+<h4>Apagar tudo</h4><p>Limpe os dados do site no navegador para remover chaves, agentes e uso.</p>`]
+};
+function doc(k){openM(DOC[k][0],DOC[k][1])}
+
+/* ---------- tela inicial 3D ---------- */
+let homeOn=true,startHome=()=>{};
+(function(){
+  if(!window.THREE)return;
+  const cv=$('c3'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  R.setPixelRatio(Math.min(devicePixelRatio,2));
+  const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(40,1,.1,200);
+  S.add(new THREE.AmbientLight(0xffffff,.22));
+  const L=new THREE.DirectionalLight(0xffffff,1.2);L.position.set(4,3,5);S.add(L);
+  const G=new THREE.Group();G.position.y=1.5;S.add(G);
+  const tilt=new THREE.Group();tilt.rotation.set(1.15,0,-.5);
+  const sat=new THREE.Mesh(new THREE.SphereGeometry(.13,24,24),new THREE.MeshBasicMaterial({color:0xffffff}));
+  tilt.add(new THREE.Mesh(new THREE.TorusGeometry(3,.03,12,260),new THREE.MeshBasicMaterial({color:0xffffff})),sat);
+  G.add(new THREE.Mesh(new THREE.SphereGeometry(1.15,64,64),new THREE.MeshPhongMaterial({color:0xffffff,shininess:70})),tilt);
+  const n=700,pos=new Float32Array(n*3);
+  for(let i=0;i<n;i++){const r=25+Math.random()*60,a=Math.random()*6.283,b=Math.acos(2*Math.random()-1);pos[i*3]=r*Math.sin(b)*Math.cos(a);pos[i*3+1]=r*Math.sin(b)*Math.sin(a);pos[i*3+2]=r*Math.cos(b)}
+  const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0x9a9a9a,size:.12}));S.add(stars);
+  const k=matchMedia('(prefers-reduced-motion:reduce)').matches?0:1;
+  let mx=0,my=0,sx=0,sy=0,raf=0;
+  addEventListener('pointermove',e=>{mx=e.clientX/innerWidth*2-1;my=e.clientY/innerHeight*2-1});
+  const rs=()=>{const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;R.setSize(w,h,false);C.aspect=w/h;C.position.set(0,0,w/h<1?16:10.5);C.updateProjectionMatrix()};
+  addEventListener('resize',rs);
+  function tick(t){
+    if(!homeOn)return;
+    sx+=(mx-sx)*.05;sy+=(my-sy)*.05;
+    G.rotation.y=t*.00022*k+sx*.6;G.rotation.x=sy*.35;stars.rotation.y=t*.00002*k;
+    const a=t*.001*k;sat.position.set(Math.cos(a)*3,Math.sin(a)*3,0);
+    R.render(S,C);raf=requestAnimationFrame(tick);
+  }
+  startHome=()=>{cancelAnimationFrame(raf);homeOn=true;rs();tick(0)};
+  startHome();
+})();
+$('enter').onclick=()=>{$('home').classList.add('off');homeOn=false;setTimeout(()=>{$('home').style.display='none';$('in').focus()},450)};
+function showHome(){$('home').style.display='block';requestAnimationFrame(()=>{$('home').classList.remove('off');startHome()})}
+$('brand').onclick=showHome;
+chips();route('home');
+</script>
+</body>
+</html>
